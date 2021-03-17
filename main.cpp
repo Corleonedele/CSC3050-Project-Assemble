@@ -73,12 +73,6 @@ string ToBinary(int num, int index){
     return binary;
 }
 
-string ToDecimal(string num){
-    string tem;
-    return tem;
-}
-
-
 
 string _add(string rd, string rs, string rt){
     string _rd = ToBinary(CheckRegister(rd), 5);
@@ -710,31 +704,26 @@ void  GetArgs(string line, vector <string> &tem){
 string GetTarget(vector <string> &all, string &target, string &ins, int row){
     int len = all.size(), ins_address, label_address, tem = 0;
     string label = target + ":", tar = " " + target;
+    ins_address = row;
+
 
     for (int i = 0; i < len; i++){
-        if (all[i].find(label) != string::npos){
-            label_address = tem;
-            break;
-        }else if (all[i].find(":") != string ::npos){
+        string t = all[i].substr(all[i].length() - 1, all[i].length());
+        if (all[i].find("#") != string::npos){
             continue;
-        }
-        else if (all[i] == "#"){
-            continue;
+        }else if(all[i].find(label) != string::npos){
+            if (t == ":"){
+                break;
+            }
+        }else if (t == ":") {
+            if (t == ":"){
+                continue;
+            }
         }
         tem += 1;
     }
-    tem = 0;
-    for (int i = 0; i <= row; i++){
-        if (all[i].find(":") != string ::npos){
-            continue;
-        }
-        else if (all[i] == "#"){
-            continue;
-        }
+    label_address = tem;
 
-        tem += 1;
-    }
-    ins_address = tem;
 
     string tep;
     if (ins == "j"){tep = to_string(label_address + 0x100000);}
@@ -755,7 +744,7 @@ string GetTarget(vector <string> &all, string &target, string &ins, int row){
 void test(){
     string line, ins, args, result, tem;
     vector <string> ALL;
-    int count = 0;
+    int count = 0, row = 0;
     while (count <= 5 && cin.good()){
         getline(cin, line);
         if (line.empty()){
@@ -765,31 +754,49 @@ void test(){
         else {count = 0;}
         if (count == 3){break;}
         line = KeyInfo(line);
-        ALL.push_back(line);
+        if (line == "#"){continue;}
+        if (line.find(":") != string::npos){
+            ALL.push_back(line.substr(0, line.find(":") + 1));
+            string t = line.substr(line.find(":") + 1, line.length());
+            if (t == ""){continue;}
+            else if (t == " "){continue;}
+            else{
+                ALL.push_back(t);
+            }
+        }else{
+            ALL.push_back(line);
+        }
+
     }
     int len = ALL.size();
+
+
     for (int i = 0; i < len; i++){
         vector <string> arg;
         line = KeyInfo(ALL[i]);
         if (line == "#"){continue;}
-        if (line.find(":") != string::npos){continue;}
         ins = GetIns(line);
         args = line.substr(ins.length(), line.length());
         args = KeyInfo(args);
+        if (line.find(":") != string::npos){
+            continue;
+        }
+        row += 1;
         GetArgs(args, arg);
-        if (ins == "j"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "jal"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, i);}
-        GetArgs(args, arg);
-        if (ins == "beq"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bgez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bgezal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bgtz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "blez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bltzal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bltz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, i);}
-        else if (ins == "bne"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, i);}
+        if (ins == "j"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "jal"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, row);}
+
+        if (ins == "beq"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bgez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bgezal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bgtz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "blez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bltzal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bltz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
+        else if (ins == "bne"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, row);}
         result = CheckIns(ins, arg);
         cout << result << endl;
+//        cout << row << endl;
     }
 
 }
