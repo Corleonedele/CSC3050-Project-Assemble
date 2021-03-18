@@ -3,11 +3,10 @@
 #include <iomanip>
 #include <fstream>
 #include <vector>
-#include <QCoreApplication>
 
 using namespace std;
 
-int CheckRegister(string r){
+int checkRegister(string r){
     if (r == "$zero"){return 0;}
     else if (r == "$at"){return 1;}
     else if (r == "$v0"){return 2;}
@@ -43,14 +42,14 @@ int CheckRegister(string r){
     else{return -1;}
 }
 
-string GetOffset(string address){
+string getOffset(string address){
     string offset;
     int f = address.find("(");
     offset = address.substr(0, f);
     return offset;
 }
 
-string GetBase(string address){
+string getBase(string address){
     string base;
     int f = address.find("(");
     int l = address.find(")");
@@ -59,7 +58,7 @@ string GetBase(string address){
 }
 
 string ToBinary(int num, int index){
-    string binary = "";
+    string binary = "", result;
     for (int i = 0; i < index; i++) {
         if(num % 2 == 0){
             binary += "0";
@@ -69,292 +68,295 @@ string ToBinary(int num, int index){
             num = (num - 1) / 2;
         }
     }
-    reverse(binary.begin(), binary.end());
-    return binary;
+    int len = binary.length();
+    for (int i = len - 1; i >= 0; i--){
+        result += binary[i];
+    }
+    return result;
 }
 
 
 string _add(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100000";
 }
 
 string _addu(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100001";
 }
 
 string _addi(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001000" + _rs + _rt + _imm;
 }
 
 string _addiu(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001001" + _rs + _rt + _imm;
 }
 
 string _and(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100100";
 }
 
 string _andi(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001100" + _rs + _rt + _imm;
 }
 
 string _clo(string rd, string rs){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + "00000" + _rd + "00000" + "100001";
 }
 
 string _clz(string rd, string rs){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + "00000" + _rd + "00000" + "100000";
 }
 
 string _div(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "00000" + "00000" + "011010";
 }
 
 string _divu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "00000" + "00000" + "011011";
 }
 
 string _mult(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "00000" + "00000" + "011000";
 }
 
 string _multu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "00000" + "00000" + "011001";
 }
 
 string _mul(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "011100" + _rs + _rt + _rd + "00000" + "000010";
 }
 
 string _madd(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + _rt + "00000" + "00000" + "000000";
 }
 
 string _maddu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + _rt + "00000" + "00000" + "000001";
 }
 
 string _msub(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + _rt + "00000" + "00000" + "000100";
 }
 
 string _msubu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "011100" + _rs + _rt + "00000" + "00000" + "000101";
 }
 
 string _nor(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100111";
 }
 
 string _or(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100101";
 }
 
 string _ori(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001101" + _rs + _rt + _imm;
 }
 
 string _sll(string rd, string rt, string shamt){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rd = ToBinary(CheckRegister(rd), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
     string _shamt = ToBinary(stoi(shamt), 5);
     return "00000000000" + _rt + _rd + _shamt + "000000";
 }
 
 string _sllv(string rd, string rt, string rs){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "000100";
 }
 
 string _sra(string rd, string rt, string shamt){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rd = ToBinary(CheckRegister(rd), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
     string _shamt = ToBinary(stoi(shamt), 5);
     return "00000000000" + _rt + _rd + _shamt + "000011";
 }
 
 string _srav(string rd, string rt, string rs){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "000111";
 }
 
 string _srl(string rd, string rt, string shamt){ // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rd = ToBinary(CheckRegister(rd), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
     string _shamt = ToBinary(stoi(shamt), 5);
     return "00000000000" + _rt + _rd + _shamt + "000010";
 }
 
 string _srlv(string rd, string rt, string rs){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "000110";
 }
 
 string _sub(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100010";
 }
 
 string _subu(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100011";
 }
 
 string _xor(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "100110";
 }
 
 string _xori(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001110" + _rs + _rt + _imm;
 }
 
 string _lui(string rt, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "00111100000" + _rt + _imm;
 }
 
 string _slt(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "101010";
 }
 
 string _sltu(string rd, string rs, string rt){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
-    string _rt = ToBinary(CheckRegister(rt), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
     return "000000" + _rs + _rt + _rd + "00000" + "101011";
 }
 
 string _slti(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001010" + _rs + _rt + _imm;
 }
 
 string _sltiu(string rt, string rs, string imm){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "001011" + _rs + _rt + _imm;
 }
 
 
 string _beq(string rs, string rt, string label){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary((stoi(label) ), 16);
     return "000100" + _rs + _rt + _offset;
 }
 
 string _bgez(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary((stoi(label)), 16);
     return "000001" + _rs + "00001" + _offset;
 }
 
 string _bgezal(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000001" + _rs + "10001" + _offset;
 }
 
 string _bgtz(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000111" + _rs + "00000" + _offset;
 }
 
 string _blez(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000110" + _rs + "00000" + _offset;
 }
 
 string _bltzal(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000001" + _rs + "10000" + _offset;
 }
 
 string _bltz(string rs, string label){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000001" + _rs + "00000" + _offset;
 }
 
 string _bne(string rs, string rt, string label){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _offset = ToBinary(stoi(label), 16);
     return "000101" + _rs + _rt + _offset;
 }
@@ -370,210 +372,209 @@ string _jal(string target){
 }
 
 string _jalr(string rs, string rd){
-    string _rd = ToBinary(CheckRegister(rd), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + "00000" + _rd + "00000" + "001001";
 }
 
 string _jr(string rs){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + "000000000000000" + "001000";
 }
 
 string _teq(string rs, string rt){// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110100";
 }
 
 string _teqi(string rs, string imm){// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "000001" + _rs + "01100" + _imm;
 }
 
 string _tne(string rs, string rt){// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110110";
 }
 
 string _tnei(string rs, string imm){// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
     return "000001" + _rs + "001110" + _imm;
 }
 
 string _tge(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110000";
 }
 
 string _tgeu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110001";
 }
 
 string _tgei(string rs, string imm){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
-    return "000001" + _rs + "001000" + _imm;
+    return "000001" + _rs + "01000" + _imm;
 }
 
 string _tgeiu(string rs, string imm){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
-    return "000001" + _rs + "001001" + _imm;
+    return "000001" + _rs + "01001" + _imm;
 }
 
 string _tlt(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110010";
 }
 
 string _tltu(string rs, string rt){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + _rt + "0000000000" + "110011";
 }
 
 string _tlti(string rs, string imm){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
-    return "000001" + _rs + "001010" + _imm;
+    return "000001" + _rs + "01010" + _imm;
 }
 
 string _tltiu(string rs, string imm){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     string _imm = ToBinary(stoi(imm), 16);
-    return "000001" + _rs + "001011" + _imm;
+    return "000001" + _rs + "01011" + _imm;
 }
 
 string _lb(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100000" + _base + _rt + _offset;
 }
 
 string _lbu(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100100" + _base + _rt + _offset;
 }
 
 string _lh(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100001" + _base + _rt + _offset;
 }
 
 string _lhu(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100101" + _base + _rt + _offset;
 }
 
 string _lw(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100011" + _base + _rt + _offset;
 }
 
 string _lwl(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100010" + _base + _rt + _offset;
 }
 
 string _lwr(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "100110" + _base + _rt + _offset;
 }
 
 string _ll(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "110000" + _base + _rt + _offset;
 }
 
 string _sb(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "101000" + _base + _rt + _offset;
 }
 
 string _sh(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "101001" + _base + _rt + _offset;
 }
 
 string _sw(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "101011" + _base + _rt + _offset;
 }
 
 string _swl(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "101010" + _base + _rt + _offset;
 }
 
 string _swr(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "101110" + _base + _rt + _offset;
 }
 
 string _sc(string rt, string address){
-    string _rt = ToBinary(CheckRegister(rt), 5);
-    string _base = ToBinary(CheckRegister(GetBase(address)), 5);
-    string _offset = ToBinary(stoi(GetOffset(address)), 16);
+    string _rt = ToBinary(checkRegister(rt), 5);
+    string _base = ToBinary(checkRegister(getBase(address)), 5);
+    string _offset = ToBinary(stoi(getOffset(address)), 16);
     return "111000" + _base + _rt + _offset;
 }
 
 string _mfhi(string rd){
-    string _rd = ToBinary(CheckRegister(rd), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
     return "0000000000000000" + _rd + "00000" + "010000";
 }
 
 string _mflo(string rd){
-    string _rd = ToBinary(CheckRegister(rd), 5);
+    string _rd = ToBinary(checkRegister(rd), 5);
     return "0000000000000000" + _rd + "00000" + "010010";
 }
 
 string _mthi(string rs){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + "000000000000000" + "010001";
 }
 
 string _mtlo(string rs){
-    string _rs = ToBinary(CheckRegister(rs), 5);
+    string _rs = ToBinary(checkRegister(rs), 5);
     return "000000" + _rs + "000000000000000" + "010011";
 }
 
-
 string _syscall(){return "00000000000000000000000000001100";}
 
-string CheckIns(string ins, vector <string> arg){
+string checkIns(string ins, vector <string> arg){
     if (ins == "add"){return _add(arg[0], arg[1], arg[2]);}
     else if (ins == "addu"){return _addu(arg[0], arg[1], arg[2]);}
     else if (ins == "addi"){return _addi(arg[0], arg[1], arg[2]);}
@@ -657,7 +658,7 @@ string CheckIns(string ins, vector <string> arg){
     else {return "NO INSTRUCTION";}
 }
 
-string KeyInfo(string s){
+string keepKeyInfo(string s){
     string beg;
     int index = 0;
     if(!s.empty()){
@@ -677,7 +678,7 @@ string KeyInfo(string s){
     return s;
 }
 
-string GetIns(string line){
+string getIns(string line){
     if (line == "syscall"){return line;}
     int last = line.find_first_of(" ");
     if (last == -1){
@@ -687,7 +688,7 @@ string GetIns(string line){
     return tem;
 }
 
-void  GetArgs(string line, vector <string> &tem){
+void  getArgs(string line, vector <string> &tem){
     int index = 0;
     for (int i = 0; i < 3;  i++){
         if (line.find_first_of(",") != string::npos){
@@ -701,7 +702,7 @@ void  GetArgs(string line, vector <string> &tem){
     }
 }
 
-string GetTarget(vector <string> &all, string &target, string &ins, int row){
+string getTarget(vector <string> &all, string &target, string &ins, int row){
     int len = all.size(), ins_address, label_address, tem = 0;
     string label = target + ":", tar = " " + target;
     ins_address = row;
@@ -741,7 +742,7 @@ string GetTarget(vector <string> &all, string &target, string &ins, int row){
     return tep;
 }
 
-void test(){
+void assembler(){
     string line, ins, args, result, tem;
     vector <string> ALL;
     int count = 0, row = 0;
@@ -753,7 +754,7 @@ void test(){
         }
         else {count = 0;}
         if (count == 3){break;}
-        line = KeyInfo(line);
+        line = keepKeyInfo(line);
         if (line == "#"){continue;}
         if (line.find(":") != string::npos){
             ALL.push_back(line.substr(0, line.find(":") + 1));
@@ -766,44 +767,38 @@ void test(){
         }else{
             ALL.push_back(line);
         }
-
     }
     int len = ALL.size();
-
-
     for (int i = 0; i < len; i++){
         vector <string> arg;
-        line = KeyInfo(ALL[i]);
+        line = keepKeyInfo(ALL[i]);
         if (line == "#"){continue;}
-        ins = GetIns(line);
+        ins = getIns(line);
         args = line.substr(ins.length(), line.length());
-        args = KeyInfo(args);
+        args = keepKeyInfo(args);
         if (line.find(":") != string::npos){
             continue;
         }
         row += 1;
-        GetArgs(args, arg);
-        if (ins == "j"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "jal"){tem = arg[0]; arg[0] = GetTarget(ALL, tem, ins, row);}
-
-        if (ins == "beq"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bgez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bgezal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bgtz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "blez"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bltzal"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bltz"){tem = arg[1]; arg[1] = GetTarget(ALL, tem, ins, row);}
-        else if (ins == "bne"){tem = arg[2]; arg[2] = GetTarget(ALL, tem, ins, row);}
-        result = CheckIns(ins, arg);
+        getArgs(args, arg);
+        if (ins == "j"){tem = arg[0]; arg[0] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "jal"){tem = arg[0]; arg[0] = getTarget(ALL, tem, ins, row);}
+        if (ins == "beq"){tem = arg[2]; arg[2] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bgez"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bgezal"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bgtz"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "blez"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bltzal"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bltz"){tem = arg[1]; arg[1] = getTarget(ALL, tem, ins, row);}
+        else if (ins == "bne"){tem = arg[2]; arg[2] = getTarget(ALL, tem, ins, row);}
+        result = checkIns(ins, arg);
         cout << result << endl;
-//        cout << row << endl;
     }
 
 }
 
 int main()
 {
-    test();
-
+    assembler();
     return 0;
 }
